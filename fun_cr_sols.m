@@ -14,31 +14,50 @@ solSet = false(dimY,dimX);
 for ori=1:2
     for line=1:dim(3-ori)
         str1 = strcat(pwd,'/sols/',f_str,'/ori',num2str(ori),'_line',num2str(line),'.mat');
+        if ~exist(strcat(pwd,"/sols"),"dir")
+            mkdir(strcat(pwd,"/sols"))
+        end
+        if ~exist(strcat(pwd,"/sols/",f_str),"dir")
+            mkdir(strcat(pwd,"/sols/",f_str))
+        end
         if ~exist(str1,'file')
             black = M{ori}{line};
-            noWhiteBlocks = length(black) + 1;
-            noWhiteSquares = dim(ori) - sum(black);
-            str2 = strcat(pwd,'/comps/comp_',num2str(noWhiteBlocks),'_',num2str(noWhiteSquares),'.mat');
-            if ~exist(str2,'file')
-                fun_cr_comps(noWhiteBlocks,noWhiteSquares);
-            end
-            noComps = alg_n_k(noWhiteSquares-1,noWhiteBlocks-1)+2*alg_n_k(noWhiteSquares-1,noWhiteBlocks-2)+alg_n_k(noWhiteSquares-1,noWhiteBlocks-3);
-            S = false(noComps,dim(ori));
-            fprintf('Creating sol O%iL%i, loading (%i %i) combination with %i compositions.\n',ori,line,noWhiteBlocks,noWhiteSquares,noComps);
-            load(str2,'A');
-            for k=1:size(A,1)
-                pos = 1 + A(k,1);
-                for l=1:length(black)
-                    S(k,pos:(pos+black(l)-1))=true;
-                    pos = pos + black(l) + A(k,l+1);
+            
+            ninp = numel(black);
+            nwhites = dim(ori) - sum(black);
+            nfreewhites = nwhites - (ninp-1);
+            k = ninp;
+            n = nfreewhites + k;
+            a = [nfreewhites,zeros(1,ninp)];
+            t = 0;
+            h = 0;
+            nrows = alg_n_k(n,k);
+            
+            S = zeros(nrows,dim(ori));
+            for j=1:nrows
+                idx = 1+a(1);
+                for i=1:ninp
+                    S(j,idx:idx+black(i)-1)=1;
+                    idx = idx + black(i) + 1 + a(i+1);
                 end
-                if(mod(k,tell)==0)
-                    fprintf('\tshifting... %i of %i compositions\n',k,noComps);
+                if(mod(j,tell)==0)
+                    fprintf('\tshifting... %i of %i compositions\n',j,nrows);
                 end
+                if(j==nrows)
+                    break;
+                end
+                if ( 1 < t )
+                    h = 0;
+                end
+                h = h + 1;
+                t = a(h);
+                a(h) = 0;
+                a(1) = t - 1;
+                a(h+1) = a(h+1) + 1;
             end
-            fprintf('\tFinished sol O%iL%i, using (%i %i) combination with %i compositions.\n',ori,line,noWhiteBlocks,noWhiteSquares,noComps);            
+            fprintf('\tFinished sol O%iL%i.\n',ori,line);
             save(str1,'S','-v7.3');
-        end      
+        end
     end
 end
 
