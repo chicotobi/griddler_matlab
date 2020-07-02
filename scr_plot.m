@@ -10,17 +10,16 @@ set(gca,'yTick',0.5:(size(sol,1)+0.5));
 set(gca,'xTickLabel',[]);
 set(gca,'yTickLabel',[]);
 grid on
-if(exist('dim'))
-    subplot(1,2,2)
-    xx=zeros(dim(1)+dim(2),1);
-    for line=1:dim(1)
-        xx(line) = size(posSol{1,line},1);
-    end
-    for line=1:dim(2)
-        xx(dim(1)+line) = size(posSol{2,line},1);
-    end
-    plot(log(xx)/log(10),'-x');
-    ylim([0 10])
+
+subplot(1,2,2)
+xx=zeros(dim(1)+dim(2),1);
+for line=1:dim(1)
+    xx(line) = size(posSol{1,line},1);
 end
+for line=1:dim(2)
+    xx(dim(1)+line) = size(posSol{2,line},1);
+end
+plot(log(xx)/log(10),'-x');
+ylim([0 10])
 
 drawnow

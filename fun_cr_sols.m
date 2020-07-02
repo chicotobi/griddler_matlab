@@ -33,11 +33,11 @@ for ori=1:2
             h = 0;
             nrows = alg_n_k(n,k);
             
-            S = zeros(nrows,dim(ori));
+            S = false(nrows,dim(ori));
             for j=1:nrows
                 idx = 1+a(1);
                 for i=1:ninp
-                    S(j,idx:idx+black(i)-1)=1;
+                    S(j,idx:idx+black(i)-1) = 1;
                     idx = idx + black(i) + 1 + a(i+1);
                 end
                 if(mod(j,tell)==0)
@@ -60,13 +60,13 @@ for ori=1:2
         end
     end
 end
-
+        
 for ori=1:2
     for line=1:dim(3-ori)
         line
         str1 = strcat(pwd,'/sols/',f_str,'/ori',num2str(ori),'_line',num2str(line),'.mat');
         load(str1,'S');
-        posSol{ori,line} = S;       
+        posSol{ori,line} = S;   
     end
 end
 

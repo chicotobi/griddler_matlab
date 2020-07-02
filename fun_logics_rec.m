@@ -2,7 +2,6 @@ function [sol, err] = fun_logics_rec(sol,solSet,inp_nr,inc_lev,posSol)
 
 err = false;
 
-
 dim = [size(sol,1),size(sol,2)];
 solSet_old = true(dim(1),dim(2));
 
@@ -44,7 +43,6 @@ while true
             v2 = ~any(posSol{ori,line},1);
             sol(line,v2) = false;
             solSet(line,v2) = true;
-            
             
         end
         sol = sol';
