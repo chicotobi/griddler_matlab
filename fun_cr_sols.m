@@ -1,5 +1,6 @@
-function [sol,solSet,posSol] = fun_cr_sols(f_str)
+function [posSol, colorPossible] = fun_cr_sols(inp_nr)
 
+f_str = num2str(inp_nr);
 str = strcat('inp_',f_str);
 run(str);
 tell = 10000;
@@ -7,9 +8,6 @@ dimX = size(V,1);
 dimY = size(H,1);
 M = {H,V};
 dim = [dimX,dimY];
-posSol = cell(2,max(dimX,dimY));
-sol = false(dimY,dimX);
-solSet = false(dimY,dimX);
 
 for ori=1:2
     for line=1:dim(3-ori)
@@ -33,11 +31,11 @@ for ori=1:2
             h = 0;
             nrows = alg_n_k(n,k);
             
-            S = false(nrows,dim(ori));
+            S = uint8(ones(nrows,dim(ori)));
             for j=1:nrows
                 idx = 1+a(1);
                 for i=1:ninp
-                    S(j,idx:idx+black(i)-1) = 1;
+                    S(j,idx:idx+black(i)-1) = 2;
                     idx = idx + black(i) + 1 + a(i+1);
                 end
                 if(mod(j,tell)==0)
@@ -60,14 +58,16 @@ for ori=1:2
         end
     end
 end
-        
+       
+posSol = cell(2,max(dimX,dimY)); 
 for ori=1:2
     for line=1:dim(3-ori)
-        line
         str1 = strcat(pwd,'/sols/',f_str,'/ori',num2str(ori),'_line',num2str(line),'.mat');
         load(str1,'S');
         posSol{ori,line} = S;   
     end
 end
+
+colorPossible = true(dimY,dimX,2);
 
 end

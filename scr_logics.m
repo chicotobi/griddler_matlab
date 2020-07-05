@@ -1,22 +1,23 @@
-clc
-clf
+clc; clear; close all
 
-inp_nr = 22364;
+inp_nr = 42;
 
-%Create solution line files
+% Creation
 tic;
 fprintf('Creation started!\n');
-[sol,solSet,posSol] = fun_cr_sols(num2str(inp_nr));
+[posSol, colorPossible] = fun_cr_sols(inp_nr);
 fprintf('Creation finished!\n');
 toc;
 
-%Run recursion
+% Recursion
 tic;
 fprintf('Iteration started!\n');
-[sol, err] = fun_logics_rec(sol,solSet,inp_nr,0,posSol);
+colorPossible = fun_logics_rec(posSol, colorPossible, 0);
 fprintf('Iteration finished!\n');
 toc;
 
-%Plot solution
-solSet = true | sol;
+% Final plot
+line = 0;
+nColors = 2;
+ori = 1;
 scr_plot

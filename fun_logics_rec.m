@@ -1,66 +1,66 @@
-function [sol, err] = fun_logics_rec(sol,solSet,inp_nr,inc_lev,posSol)
+function [colorPossible, err] = fun_logics_rec(posSol,colorPossible,inc_level)
+
+nColors = 2;
 
 err = false;
 
-dim = [size(sol,1),size(sol,2)];
-solSet_old = true(dim(1),dim(2));
+dim = [size(colorPossible,1),size(colorPossible,2)];
 
 %Indentation
 ind = '';
-for i=1:inc_lev
+for i=1:inc_level
     ind = strcat(ind,'--');
 end
 
 while true
-    solSetChange = and(solSet,not(solSet_old));
-    solSet_old = solSet;
-    sol_old = sol;
-    %Deleting solutions
+    colorPossible_old = colorPossible;
     for ori=1:2
         for line=1:dim(ori)
-            if any(solSetChange(line,:))
+            for color=1:nColors
+                % Update
+                tmp = posSol{ori,line};
+                v = (sum(tmp==color,1)>0);
+                colorPossible(line,:,color) = v & colorPossible(line,:,color);
+                
                 npSol = size(posSol{ori,line},1);
-                mat = false(npSol,dim(3-ori));
-                solLine = sol(line,:);
-                solSetLine = solSet(line,:);
+                remove_this_solution = false(npSol,dim(3-ori),nColors);
+                colorPossibleLine = colorPossible(line,:,color);
                 for i = 1:dim(3-ori)
-                    mat(:,i) = solSetLine(i) & xor(solLine(i),posSol{ori,line}(:,i));
+                    remove_this_solution(:,i,color) = (~colorPossibleLine(i)) & (posSol{ori,line}(:,i)==color);
                 end
-                idxKeep = ~any(mat,2);
+                idxKeep = ~any(remove_this_solution,[2,3]);
                 if(~any(idxKeep))
                     err = true;
                     return;
                 end
                 posSol{ori,line} = posSol{ori,line}(idxKeep,:);
-                %fprintf('In Ori %i Line %i, deleted %i of former %i solutions. Left %i solutions.\n',ori,line,npSol-sum(idxKeep),npSol,sum(idxKeep));
-            else
-                %fprintf('In Ori %i Line %i, no deletion this iteration tried.\n',ori,line);
+                fprintf('In Ori %i Line %i Color %i, deleted %i of former %i solutions. Left %i solutions.\n',ori,line,color,npSol-sum(idxKeep),npSol,sum(idxKeep));
+                
+                for i=1:dim(3-ori)
+                    c1 = min(posSol{ori,line}(:,i));
+                    c2 = max(posSol{ori,line}(:,i));
+                    if(c1==c2)
+                        for c=1:nColors
+                            if(c~=c1)
+                                colorPossible(line,i,c) = 0;
+                            end
+                        end
+                    end
+                end
             end
-            
-            v1 = all(posSol{ori,line},1);
-            sol(line,v1) = true;
-            solSet(line,v1) = true;
-            v2 = ~any(posSol{ori,line},1);
-            sol(line,v2) = false;
-            solSet(line,v2) = true;
-            
+            scr_plot
+            drawnow
         end
-        sol = sol';
-        solSet = solSet';
-        solSetChange = solSetChange';
-        %solSetChange = and(solSet,not(solSet_old'));
-        %solSet_old = solSet;
+        colorPossible = permute(colorPossible,[2,1,3]);
     end
     
-    if all(solSet)
+    % If solved
+    if all(sum(colorPossible,3)==1,"all")
         return;
     end
     
-    %Plot
-    scr_plot;
-    
     %Increase guess level
-    if norm(sol_old-sol)==0
+    if sum((colorPossible_old(:)-colorPossible(:)).^2)==0
         
         %Copy all solutions
         thPosSol = posSol;
@@ -84,7 +84,7 @@ while true
         
         %Now go deeper
         fprintf(strcat(ind,'Guess correct solution in O%iL%i of  %i solutions there.\n'),min_idx(1),min_idx(2),min_s);
-        [thSol, err] = fun_logics_rec(sol,solSet,inp_nr,inc_lev,thPosSol);
+        [~, err] = fun_logics_rec(thPosSol, colorPossible, inc_level);
         
         %If you receive an error, the chosen solution was not the correct
         %one => delete it, and go on.
