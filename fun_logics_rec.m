@@ -16,6 +16,7 @@ while true
     colorPossible_old = colorPossible;
     for ori=1:2
         for line=1:dim(ori)
+            change = 0;
             for color=1:nColors
                 % Update
                 tmp = posSol{ori,line};
@@ -34,7 +35,7 @@ while true
                     return;
                 end
                 posSol{ori,line} = posSol{ori,line}(idxKeep,:);
-                fprintf('In Ori %i Line %i Color %i, deleted %i of former %i solutions. Left %i solutions.\n',ori,line,color,npSol-sum(idxKeep),npSol,sum(idxKeep));
+                change = change | (sum(idxKeep)~=npSol);
                 
                 for i=1:dim(3-ori)
                     c1 = min(posSol{ori,line}(:,i));
@@ -48,8 +49,10 @@ while true
                     end
                 end
             end
-            scr_plot
-            drawnow
+            if(change)
+                fprintf('%sIn Ori %i Line %i left %i solutions.\n',ind,ori,line,size(posSol{ori,line},1));
+                scr_plot(colorPossible,posSol,ori,line)
+            end
         end
         colorPossible = permute(colorPossible,[2,1,3]);
     end
@@ -66,7 +69,7 @@ while true
         thPosSol = posSol;
         
         %Increase inception level
-        inc_lev=inc_lev+1;
+        inc_level=inc_level+1;
         
         %Now search for a line with minimal number of possible solutions
         min_s = Inf;
@@ -84,7 +87,7 @@ while true
         
         %Now go deeper
         fprintf(strcat(ind,'Guess correct solution in O%iL%i of  %i solutions there.\n'),min_idx(1),min_idx(2),min_s);
-        [~, err] = fun_logics_rec(thPosSol, colorPossible, inc_level);
+        [thColorPossible, err] = fun_logics_rec(thPosSol, colorPossible, inc_level);
         
         %If you receive an error, the chosen solution was not the correct
         %one => delete it, and go on.
@@ -92,10 +95,10 @@ while true
         if err
             fprintf(strcat(ind,'Invalid solution in O%iL%i found and dropped, remaining %i solutions.\n'),min_idx(1),min_idx(2),min_s-1);
             posSol{min_idx(1),min_idx(2)} = posSol{min_idx(1),min_idx(2)}(2:end,:);
-            inc_lev = inc_lev - 1;
+            inc_level = inc_level - 1;
         else
-            sol = thSol;
-            fprintf(strcat(ind,'Returned from inception level %i. Solved!\n'),inc_lev);
+            colorPossible = thColorPossible;
+            fprintf(strcat(ind,'Returned from inception level %i. Solved!\n'),inc_level);
             return;
         end
     end

@@ -17,7 +17,4 @@ fprintf('Iteration finished!\n');
 toc;
 
 % Final plot
-line = 0;
-nColors = 2;
-ori = 1;
-scr_plot
+scr_plot(colorPossible,posSol,1,0);
