@@ -5,9 +5,9 @@ H = {
 [3 1]
 1
 };
-V = H
+V = H;
 
-cols = ["green","brown"]
+cols = ["green","brown"];
 
 HC = {
 [1 1]

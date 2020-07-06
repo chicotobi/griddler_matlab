@@ -1,5 +1,7 @@
 function scr_plot(colorPossible,posSol,ori,line)
 clf
+global cmap
+
 nColors = size(colorPossible,3);
 if(ori==1)
     dim = [size(colorPossible,1),size(colorPossible,2)];
@@ -18,16 +20,11 @@ for i=1:dims(1)
     end
 end
 
-unknown_color = [1,0,1];
-white = [1,1,1];
-black = [0,0,0];
-mycmap = [unknown_color;white;black];
-
 if(line>0)
     subplot(2,2,[1,3])
 end
 imagesc(sol,[0,nColors]);
-colormap(mycmap);
+colormap(cmap);
 hold on
 if(ori==1)
     builtin("line",[0.5,dim(2)+0.5],[line,line],"LineWidth",2,"Color","black")

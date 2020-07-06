@@ -1,11 +1,11 @@
 clc; clear; close all
 
-inp_nr = 42;
-
+inp_nr = 10311;
+global cmap
 % Creation
 tic;
 fprintf('Creation started!\n');
-[posSol, colorPossible] = fun_cr_sols(inp_nr);
+[posSol, colorPossible, cmap] = fun_cr_sols(inp_nr);
 fprintf('Creation finished!\n');
 toc;
 

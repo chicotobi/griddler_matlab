@@ -1,6 +1,6 @@
-function [colorPossible, err] = fun_logics_rec(posSol,colorPossible,inc_level)
+function [colorPossible, err,cmap] = fun_logics_rec(posSol,colorPossible,inc_level)
 
-nColors = 2;
+nColors = size(colorPossible,3);
 
 err = false;
 
