@@ -1,6 +1,6 @@
 clc; clear; close all
 
-inp_nr = 10311;
+inp_nr = 177126;
 global cmap
 % Creation
 tic;
