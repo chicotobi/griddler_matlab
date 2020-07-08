@@ -51,7 +51,9 @@ while true
             end
             if(change)
                 fprintf('%sIn Ori %i Line %i left %i solutions.\n',ind,ori,line,size(posSol{ori,line},1));
-                scr_plot(colorPossible,posSol,ori,line)
+                if(inc_level<3)
+                    scr_plot(colorPossible,posSol,ori,line)
+                end
             end
         end
         colorPossible = permute(colorPossible,[2,1,3]);

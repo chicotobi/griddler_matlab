@@ -1,15 +1,25 @@
 function [posSol, colorPossible, cmap] = fun_cr_sols(inp_nr)
 
 f_str = num2str(inp_nr);
-str = strcat('inp_',f_str);
-run(str);
+str = strcat('inp_',f_str,".m");
+if(exist(str,"file"))
+    run(str);
+    if(exist("VC","var"))
+        cmap = str2rgb(["unknown" "white" cols]);
+    else
+        cmap = str2rgb(["unknown" "white" "black"]);
+    end
+else
+    [H, V, HC, VC, cmap] = translate_griddlers_net(f_str);
+end
+
 tell = 10000;
 dimX = size(V,1);
 dimY = size(H,1);
 M = {H,V};
 dim = [dimX,dimY];
 
-with_colors = exist("VC","var");
+with_colors = size(cmap,1)>3;
 if(with_colors)
     C = {HC,VC};
 end
@@ -112,12 +122,7 @@ for ori=1:2
     end
 end
 
-if(with_colors)
-    cmap = str2rgb(["unknown" "white" cols]);
-else
-    cmap = str2rgb(["unknown" "white" "black"]);
-end
-nColors = numel(cols)+1;
+nColors = size(cmap,1)-1;
 colorPossible = true(dimY,dimX,nColors);
 
 end

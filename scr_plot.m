@@ -34,6 +34,8 @@ end
 axis([0.5,dim(2)+0.5,0.5,dim(1)+0.5]);
 set(gca,'xTick',[]);
 set(gca,'yTick',[]);
+axis equal
+axis tight
 grid on
 
 if(line>0)
@@ -42,18 +44,20 @@ if(line>0)
     for line=1:dim(1)
         xx(line) = size(posSol{1,line},1);
     end
-    plot(log(xx)/log(10),'-x');
+    semilogy(xx,'-x');
     xlim([0 dim(1)])
-    ylim([0 10])
+    xlabel("Horizontal lines")
+    ylim([0 1e10])
     
     subplot(2,2,4)
     xx=zeros(dim(2),1);
     for line=1:dim(2)
         xx(line) = size(posSol{2,line},1);
     end
-    plot(log(xx)/log(10),'-x');
+    semilogy(xx,'-x');
     xlim([0 dim(2)])
-    ylim([0 10])
+    xlabel("Vertical lines")
+    ylim([0 1e10])
 end
 drawnow
 
