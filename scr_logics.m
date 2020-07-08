@@ -1,6 +1,6 @@
 clc; clear; close all
 
-inp_nr = 88712;
+inp_nr = 147510;
 
 global cmap
 % Creation
