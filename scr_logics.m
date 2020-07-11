@@ -1,11 +1,13 @@
 clc; clear; close all
 
 %inp_nr = 200968;
-inp_nr = 147510;
 %inp_nr = 147510;
-%inp_nr = 147510;
+inp_nr = 39756;
+%inp_nr = 22364;
+%inp_nr = 5654;
 
-global cmap
+global cmap iter
+iter = 0;
 % Creation
 tic;
 fprintf('Creation started!\n');
@@ -16,7 +18,7 @@ toc;
 % Recursion
 tic;
 fprintf('Iteration started!\n');
-colorPossible = fun_logics_rec(posSol, colorPossible, 0);
+colorPossible = fun_logics_rec(inp_nr, posSol, colorPossible, 0);
 fprintf('Iteration finished!\n');
 toc;
 

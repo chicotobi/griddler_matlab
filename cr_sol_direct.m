@@ -11,6 +11,9 @@ a = [nfreewhites,zeros(1,ninp)];
 t = 0;
 h = 0;
 nrows = alg_n_k(n,k);
+if(nrows>1e5)
+    throw(MException("cr_sol_direct:solutionTooBig"))
+end
 
 tell = 10000;
 
