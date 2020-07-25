@@ -1,6 +1,5 @@
-function scr_plot(colorPossible,posSol,ori,ll)
+function scr_plot(colorPossible,posSol,cmap,ori,ll)
 clf
-global cmap
 
 nColors = size(colorPossible,3);
 if(ori==1)
