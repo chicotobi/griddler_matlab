@@ -1,4 +1,4 @@
-function plot_progress(colorPossible,posSol,cmap,iter,ori,ll)
+function plot_progress(colorPossible,posSol,cmap,iter,threshold,ori,ll)
 clf
 
 % Preparation
@@ -55,7 +55,8 @@ hold on
 if(size(mark,1)>0)
     semilogy(mark(:,1),mark(:,2),'ro');
 end
-xlim([0 dim(1)])
+line([1 dim(1)],[threshold threshold],"Color","red")
+xlim([1 dim(1)])
 xlabel("Horizontal lines")
 ylim([1 1e10])
 
@@ -76,7 +77,8 @@ hold on
 if(size(mark,1)>0)
     semilogy(mark(:,1),mark(:,2),'ro');
 end
-xlim([0 dim(2)])
+line([1 dim(2)],[threshold threshold],"Color","red")
+xlim([1 dim(2)])
 xlabel("Vertical lines")
 ylim([1 1e10])
 

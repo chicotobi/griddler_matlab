@@ -1,7 +1,7 @@
 clc; clear; close all
 
-%inp_nr = 200968;
-inp_nr = 147510;
+inp_nr = 200968;
+%inp_nr = 147510;
 %inp_nr = 39756;
 %inp_nr = 88712;
 %inp_nr = 22364;
@@ -43,7 +43,7 @@ colorPossible = true(dim(1),dim(2),nColors);
 iter = 0;
 last = 0;
 while true
-    scr_plot(colorPossible,posSol,cmap,iter,1,0);
+    plot_progress(colorPossible,posSol,cmap,iter,threshold,1,0);
     iter = iter + 1;
     created_line = 0;
     colorPossible_old = colorPossible;
@@ -107,7 +107,7 @@ while true
     if all(sum(colorPossible,3)==1,"all")
         if(last==1)
             toc;
-            scr_plot(colorPossible,posSol,cmap,iter,1,0);
+            plot_progress(colorPossible,posSol,cmap,iter,threshold,1,0);
             return;
         end
         last = 1;
