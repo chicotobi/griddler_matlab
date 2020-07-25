@@ -1,6 +1,7 @@
-function scr_plot(colorPossible,posSol,cmap,ori,ll)
+function scr_plot(colorPossible,posSol,cmap,iter,ori,ll)
 clf
 
+% Preparation
 nColors = size(colorPossible,3);
 if(ori==1)
     dim = [size(colorPossible,1),size(colorPossible,2)];
@@ -19,6 +20,7 @@ for i=1:dims(1)
     end
 end
 
+% Plot
 subplot(2,2,[1,3])
 imagesc(sol,[0,nColors]);
 colormap(cmap);
@@ -34,6 +36,7 @@ set(gca,'yTick',[]);
 axis equal
 axis tight
 grid on
+title(append("Iteration ",num2str(iter)))
 
 subplot(2,2,2)
 xx=zeros(dim(1),1);
@@ -54,7 +57,7 @@ if(size(mark,1)>0)
 end
 xlim([0 dim(1)])
 xlabel("Horizontal lines")
-ylim([0 1e10])
+ylim([1 1e10])
 
 subplot(2,2,4)
 xx=zeros(dim(2),1);
@@ -75,7 +78,7 @@ if(size(mark,1)>0)
 end
 xlim([0 dim(2)])
 xlabel("Vertical lines")
-ylim([0 1e10])
+ylim([1 1e10])
 
 drawnow
 

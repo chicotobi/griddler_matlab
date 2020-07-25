@@ -8,6 +8,10 @@ inp_nr = 147510;
 %inp_nr = 5654;
 %inp_nr = 90062;
 
+% Parameters
+min_threshold = 1e5;
+threshold = min_threshold;
+
 % Creation
 tic;
 f_str = num2str(inp_nr);
@@ -15,9 +19,6 @@ f_str = num2str(inp_nr);
 M = {H,V};
 C = {HC,VC};
 dim = [size(H,1),size(V,1)];
-
-threshold = 1e6;
-
 posSol = cell(2,1);
 for ori=1:2
     posSol{ori} = cell(dim(ori),1);
@@ -39,9 +40,12 @@ end
 nColors = size(cmap,1)-1;
 colorPossible = true(dim(1),dim(2),nColors);
 
-min_threshold = 1e6;
-threshold = min_threshold;
+% Solution
+iter = 0;
+last = 0;
 while true
+    scr_plot(colorPossible,posSol,cmap,iter,1,0);
+    iter = iter + 1;
     created_line = 0;
     colorPossible_old = colorPossible;
     for ori=1:2
@@ -99,11 +103,14 @@ while true
         end
         colorPossible = permute(colorPossible,[2,1,3]);
     end
-    scr_plot(colorPossible,posSol,cmap,1,0);
     
     % If solved
     if all(sum(colorPossible,3)==1,"all")
-        break;
+        if(last==1)
+            scr_plot(colorPossible,posSol,cmap,iter,1,0);
+            return;
+        end
+        last = 1;
     end
     
     % Increase threshold
@@ -113,10 +120,5 @@ while true
     else
         threshold = max(min_threshold,threshold/2);
     end
-    
 end
-
 toc;
-
-% Final plot
-scr_plot(colorPossible,posSol,cmap,1,0);
