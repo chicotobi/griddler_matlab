@@ -1,15 +1,15 @@
 clc; clear; close all
 
-inp_nr = 200968;
+%inp_nr = 200968;
 %inp_nr = 147510;
 %inp_nr = 39756;
 %inp_nr = 88712;
-%inp_nr = 22364;
-%inp_nr = 5654;
 %inp_nr = 90062;
+%inp_nr = 5654;
+inp_nr = 22364;
 
 % Parameters
-min_threshold = 1e5;
+min_threshold = 1e6;
 threshold = min_threshold;
 
 % Creation
@@ -28,7 +28,7 @@ for ori=1:2
         l = dim(3-ori);
         [~,count] = cr_sol_direct(blocks,colors,l,1);
         if(count<threshold)
-            posSol{ori}{line} = cr_sol_direct(blocks,colors,l)+1;
+            posSol{ori}{line} = cr_sol_direct(blocks,colors,l,0)+1;
             fprintf('O%iL%i created with %i solutions.\n',ori,line,count);
         else
             posSol{ori}{line} = num2str(count);
@@ -59,7 +59,7 @@ while true
                 [~,count] = cr_sol_rec_with_info(blocks,colors,l,colPos,1);
                 if(count<threshold)
                     created_line = 1;
-                    posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos)+1;
+                    posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0)+1;
                     fprintf("O%iL%i created with %i solutions.\n",ori,line,count);
                 else
                     posSol{ori}{line} = num2str(count);

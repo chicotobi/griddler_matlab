@@ -1,22 +1,16 @@
 function [S, count] = cr_sol_rec_with_info(blocks, colors, l, colPos, onlycount)
 
-if ~exist('onlycount','var')
-    onlycount = 0;
-end
 S = [];
 count = 0;
 if(numel(blocks)==0 && l>=0)
     if(all(colPos(1,:)==1) || l==0)
         count = 1;
         S = zeros(1,l,"uint8");
-    else
-        S = [];
     end
     return;
 end
 
 if(l<min_length(blocks,colors))
-    S = [];
     return;
 end
 
@@ -25,7 +19,7 @@ if(min(tmp)==size(colPos,1))
     if(onlycount)
         [~,count] = cr_sol_direct(blocks,colors,l,1);
     else
-        S = cr_sol_direct(blocks,colors,l);
+        S = cr_sol_direct(blocks,colors,l,0);
     end
     return
 end
@@ -53,9 +47,9 @@ for col=1:ncol
                     [~, countr] = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos, 1);
                     count = count + countl * countr;
                 else
-                    Sl = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos);
+                    Sl = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos,0);
                     Sm = 0;
-                    Sr = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos);
+                    Sr = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos,0);
                     if(size(Sl,1)>0 && size(Sr,1)>0)
                         [tmp0,tmp1,tmp2] = ndgrid(1:size(Sl,1),1,1:size(Sr,1));
                         S0 = [Sl(tmp0,:),Sm(tmp1,:),Sr(tmp2,:)];
@@ -105,9 +99,9 @@ for col=1:ncol
                             [~,countr] = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos,1);
                             count = count + countl * countr;
                         else
-                            Sl = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos);
+                            Sl = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos,0);
                             Sm = ones(1,b,"uint8")*c;
-                            Sr = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos);
+                            Sr = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos,0);
                             if(size(Sl,1)>0 && size(Sr,1)>0)
                                 if(lsame)
                                     Sl = [Sl zeros(size(Sl,1),1,"uint8")];

@@ -1,8 +1,5 @@
 function [S, nrows] = cr_sol_direct(blocks, colors, l, onlycount)
 
-if ~exist('onlycount','var')
-    onlycount = 0;
-end
 ninp = numel(blocks);
 nwhites = l - sum(blocks);
 next_block_is_same_color = [diff(colors)==0, 0];
