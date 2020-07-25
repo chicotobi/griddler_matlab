@@ -28,13 +28,12 @@ for ori=1:2
         l = dim(3-ori);
         [~,count] = cr_sol_direct(blocks,colors,l,1);
         if(count<threshold)
-            S = cr_sol_direct(blocks,colors,l)+1;
+            posSol{ori}{line} = cr_sol_direct(blocks,colors,l)+1;
             fprintf('O%iL%i created with %i solutions.\n',ori,line,count);
         else
-            S = num2str(count);
+            posSol{ori}{line} = num2str(count);
             fprintf("O%iL%i not created with %i solutions.\n",ori,line,count);
         end
-        posSol{ori}{line} = S;
     end
 end
 nColors = size(cmap,1)-1;
