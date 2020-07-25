@@ -5,8 +5,6 @@ nColors = size(colorPossible,3);
 f_str = num2str(inp_nr);
 [H, V, HC, VC, ~] = translate_griddlers_net(f_str);
 
-dimX = size(V,1);
-dimY = size(H,1);
 M = {H,V};
 C = {HC,VC};
 dim = [size(colorPossible,1) size(colorPossible,2)];
@@ -28,7 +26,7 @@ while true
         for line=1:dim(ori)
             change = 0;
             tmp = posSol{ori}{line};
-            if(class(tmp)=="string"&&tmp=="NotCreated")
+            if(isa(tmp,'char'))
                 blocks = M{ori}{line};
                 colors = C{ori}{line};
                 l = dim(3-ori);
@@ -37,10 +35,10 @@ while true
                 if(count<threshold)
                     created_line = 1;
                     posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0)+1;
-                    fprintf("In Ori %i Line %i created %i solutions.\n",ori,line,size(posSol{ori}{line},1));
+                    fprintf("O%iL%i created with %i solutions.\n",ori,line,count);
                 else
-                    fprintf("In Ori %i Line %i #solutions %i bigger than threshold %i.\n",ori,line,count,threshold);
-                    posSol{ori}{line} = "NotCreated";
+                    posSol{ori}{line} = num2str(count);
+                    fprintf("O%iL%i not created with %i solutions. Threshold %i.\n",ori,line,count,threshold);
                 end
             else
                 for color=1:nColors

@@ -9,6 +9,8 @@ M = {H,V};
 C = {HC,VC};
 dim = [dimX,dimY];
 
+threshold = 1e6;
+
 for ori=1:2
     for line=1:dim(3-ori)
         str1 = strcat(pwd,'/sols/',f_str,'/ori',num2str(ori),'_line',num2str(line),'.mat');
@@ -23,12 +25,12 @@ for ori=1:2
             colors = C{ori}{line};
             l = dim(ori);
             [~,count] = cr_sol_direct(blocks,colors,l,1);
-            if(count<1e6)
+            if(count<threshold)
                 S = cr_sol_direct(blocks,colors,l)+1;
-                fprintf('O%iL%i created.\n',ori,line);
+                fprintf('O%iL%i created with %i solutions.\n',ori,line,count);
             else
-                S = "NotCreated";
-                fprintf("O%iL%i not created.\n",ori,line);
+                S = num2str(count);
+                fprintf("O%iL%i not created with %i solutions.\n",ori,line,count);
             end
             save(str1,'S','-v7.3');
         end

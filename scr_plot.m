@@ -42,9 +42,11 @@ if(line>0)
     subplot(2,2,2)
     xx=zeros(dim(1),1);
     for line=1:dim(1)
-        xx(line) = size(posSol{1}{line},1);
-        if(class(posSol{1}{line})=="string")
-            xx(line) = 1e10;
+        v = posSol{1}{line};
+        if(isa(v,'char'))
+            xx(line) = str2double(v);
+        else
+            xx(line) = size(v,1);
         end
     end
     semilogy(xx,'-x');
@@ -55,9 +57,11 @@ if(line>0)
     subplot(2,2,4)
     xx=zeros(dim(2),1);
     for line=1:dim(2)
-        xx(line) = size(posSol{2}{line},1);
-        if(class(posSol{2}{line})=="string")
-            xx(line) = 1e10;
+        v = posSol{2}{line};
+        if(isa(v,'char'))
+            xx(line) = str2double(v);
+        else
+            xx(line) = size(v,1);
         end
     end
     semilogy(xx,'-x');
