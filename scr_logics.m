@@ -1,16 +1,17 @@
 clc; clear; close all
 
 %inp_nr = 200968;
-%inp_nr = 147510;
+inp_nr = 147510;
 %inp_nr = 39756;
 %inp_nr = 88712;
 %inp_nr = 90062;
 %inp_nr = 5654;
-inp_nr = 22364;
+%inp_nr = 22364;
 
 % Parameters
 min_threshold = 1e6;
 threshold = min_threshold;
+more_plots = 0;
 
 % Creation
 tic;
@@ -49,6 +50,7 @@ while true
     colorPossible_old = colorPossible;
     for ori=1:2
         for line=1:dim(ori)
+            created_this_line = 0;
             change = 0;
             tmp = posSol{ori}{line};
             if(isa(tmp,'char'))
@@ -59,6 +61,7 @@ while true
                 [~,count] = cr_sol_rec_with_info(blocks,colors,l,colPos,1);
                 if(count<threshold)
                     created_line = 1;
+                    created_this_line = 1;
                     posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0)+1;
                     fprintf("O%iL%i created with %i solutions.\n",ori,line,count);
                 else
@@ -98,6 +101,9 @@ while true
                 if(change)
                     fprintf('O%iL%i left %i solutions.\n',ori,line,size(posSol{ori}{line},1));
                 end
+                if(more_plots && (change || created_this_line))
+                    plot_progress(colorPossible,posSol,cmap,iter,threshold,ori,line);
+                end
             end
         end
         colorPossible = permute(colorPossible,[2,1,3]);
@@ -107,7 +113,7 @@ while true
     if all(sum(colorPossible,3)==1,"all")
         if(last==1)
             toc;
-            plot_progress(colorPossible,posSol,cmap,iter,threshold,1,0);
+            plot_progress(colorPossible,posSol,cmap,iter,threshold,1,-1);
             return;
         end
         last = 1;

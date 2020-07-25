@@ -21,14 +21,18 @@ for i=1:dims(1)
 end
 
 % Plot
-subplot(2,2,[1,3])
+if(ll>-1)
+    subplot(2,2,[1,3])
+end
 imagesc(sol,[0,nColors]);
 colormap(cmap);
 hold on
-if(ori==1)
-    line([0.5,dim(2)+0.5],[ll,ll],"LineWidth",2,"Color","black")
-else
-    line([ll,ll],[0.5,dim(1)+0.5],"LineWidth",2,"Color","black")
+if(ll>0)
+    if(ori==1)
+        line([0.5,dim(2)+0.5],[ll,ll],"LineWidth",2,"Color","black")
+    else
+        line([ll,ll],[0.5,dim(1)+0.5],"LineWidth",2,"Color","black")
+    end
 end
 axis([0.5,dim(2)+0.5,0.5,dim(1)+0.5]);
 set(gca,'xTick',[]);
@@ -38,49 +42,51 @@ axis tight
 grid on
 title(append("Iteration ",num2str(iter)))
 
-subplot(2,2,2)
-xx=zeros(dim(1),1);
-mark = [];
-for i=1:dim(1)
-    v = posSol{1}{i};
-    if(isa(v,'char'))
-        xx(i) = str2double(v);
-        mark = [mark;i, xx(i)];
-    else
-        xx(i) = size(v,1);
+if(ll>-1)
+    subplot(2,2,2)
+    xx=zeros(dim(1),1);
+    mark = [];
+    for i=1:dim(1)
+        v = posSol{1}{i};
+        if(isa(v,'char'))
+            xx(i) = str2double(v);
+            mark = [mark;i, xx(i)];
+        else
+            xx(i) = size(v,1);
+        end
     end
-end
-semilogy(xx,'-x');
-hold on
-if(size(mark,1)>0)
-    semilogy(mark(:,1),mark(:,2),'ro');
-end
-line([1 dim(1)],[threshold threshold],"Color","red")
-xlim([1 dim(1)])
-xlabel("Horizontal lines")
-ylim([1 1e10])
-
-subplot(2,2,4)
-xx=zeros(dim(2),1);
-mark = [];
-for i=1:dim(2)
-    v = posSol{2}{i};
-    if(isa(v,'char'))
-        xx(i) = str2double(v);
-        mark = [mark;i, xx(i)];
-    else
-        xx(i) = size(v,1);
+    semilogy(xx,'-x');
+    hold on
+    if(size(mark,1)>0)
+        semilogy(mark(:,1),mark(:,2),'ro');
     end
+    line([1 dim(1)],[threshold threshold],"Color","red")
+    xlim([1 dim(1)])
+    xlabel("Horizontal lines")
+    ylim([1 1e10])
+    
+    subplot(2,2,4)
+    xx=zeros(dim(2),1);
+    mark = [];
+    for i=1:dim(2)
+        v = posSol{2}{i};
+        if(isa(v,'char'))
+            xx(i) = str2double(v);
+            mark = [mark;i, xx(i)];
+        else
+            xx(i) = size(v,1);
+        end
+    end
+    semilogy(xx,'-x');
+    hold on
+    if(size(mark,1)>0)
+        semilogy(mark(:,1),mark(:,2),'ro');
+    end
+    line([1 dim(2)],[threshold threshold],"Color","red")
+    xlim([1 dim(2)])
+    xlabel("Vertical lines")
+    ylim([1 1e10])
 end
-semilogy(xx,'-x');
-hold on
-if(size(mark,1)>0)
-    semilogy(mark(:,1),mark(:,2),'ro');
-end
-line([1 dim(2)],[threshold threshold],"Color","red")
-xlim([1 dim(2)])
-xlabel("Vertical lines")
-ylim([1 1e10])
 
 drawnow
 
