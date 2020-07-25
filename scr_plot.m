@@ -1,4 +1,4 @@
-function scr_plot(colorPossible,posSol,ori,line)
+function scr_plot(colorPossible,posSol,ori,ll)
 clf
 global cmap
 
@@ -20,16 +20,14 @@ for i=1:dims(1)
     end
 end
 
-if(line>0)
-    subplot(2,2,[1,3])
-end
+subplot(2,2,[1,3])
 imagesc(sol,[0,nColors]);
 colormap(cmap);
 hold on
 if(ori==1)
-    builtin("line",[0.5,dim(2)+0.5],[line,line],"LineWidth",2,"Color","black")
+    line([0.5,dim(2)+0.5],[ll,ll],"LineWidth",2,"Color","black")
 else
-    builtin("line",[line,line],[0.5,dim(1)+0.5],"LineWidth",2,"Color","black")
+    line([ll,ll],[0.5,dim(1)+0.5],"LineWidth",2,"Color","black")
 end
 axis([0.5,dim(2)+0.5,0.5,dim(1)+0.5]);
 set(gca,'xTick',[]);
@@ -38,37 +36,48 @@ axis equal
 axis tight
 grid on
 
-if(line>0)
-    subplot(2,2,2)
-    xx=zeros(dim(1),1);
-    for line=1:dim(1)
-        v = posSol{1}{line};
-        if(isa(v,'char'))
-            xx(line) = str2double(v);
-        else
-            xx(line) = size(v,1);
-        end
+subplot(2,2,2)
+xx=zeros(dim(1),1);
+mark = [];
+for i=1:dim(1)
+    v = posSol{1}{i};
+    if(isa(v,'char'))
+        xx(i) = str2double(v);
+        mark = [mark;i, xx(i)];
+    else
+        xx(i) = size(v,1);
     end
-    semilogy(xx,'-x');
-    xlim([0 dim(1)])
-    xlabel("Horizontal lines")
-    ylim([0 1e10])
-    
-    subplot(2,2,4)
-    xx=zeros(dim(2),1);
-    for line=1:dim(2)
-        v = posSol{2}{line};
-        if(isa(v,'char'))
-            xx(line) = str2double(v);
-        else
-            xx(line) = size(v,1);
-        end
-    end
-    semilogy(xx,'-x');
-    xlim([0 dim(2)])
-    xlabel("Vertical lines")
-    ylim([0 1e10])
 end
+semilogy(xx,'-x');
+hold on
+if(size(mark,1)>0)
+    semilogy(mark(:,1),mark(:,2),'ro');
+end
+xlim([0 dim(1)])
+xlabel("Horizontal lines")
+ylim([0 1e10])
+
+subplot(2,2,4)
+xx=zeros(dim(2),1);
+mark = [];
+for i=1:dim(2)
+    v = posSol{2}{i};
+    if(isa(v,'char'))
+        xx(i) = str2double(v);
+        mark = [mark;i, xx(i)];
+    else
+        xx(i) = size(v,1);
+    end
+end
+semilogy(xx,'-x');
+hold on
+if(size(mark,1)>0)
+    semilogy(mark(:,1),mark(:,2),'ro');
+end
+xlim([0 dim(2)])
+xlabel("Vertical lines")
+ylim([0 1e10])
+
 drawnow
 
 end
