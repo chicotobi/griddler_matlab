@@ -107,6 +107,7 @@ while true
     % If solved
     if all(sum(colorPossible,3)==1,"all")
         if(last==1)
+            toc;
             scr_plot(colorPossible,posSol,cmap,iter,1,0);
             return;
         end
@@ -121,4 +122,3 @@ while true
         threshold = max(min_threshold,threshold/2);
     end
 end
-toc;

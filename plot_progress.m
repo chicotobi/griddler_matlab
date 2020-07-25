@@ -1,4 +1,4 @@
-function scr_plot(colorPossible,posSol,cmap,iter,ori,ll)
+function plot_progress(colorPossible,posSol,cmap,iter,ori,ll)
 clf
 
 % Preparation
