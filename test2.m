@@ -21,12 +21,20 @@ for i=1:1000
     S1 = sortrows(S1);
     
     % solver two
+    [~,count] = cr_sol_rec_with_info(blocks,colors,l,colPos, 1);
     S2 = cr_sol_rec_with_info(blocks,colors,l,colPos);
     S2 = sortrows(S2);
     
     if(size(S1,1)==size(S2,1))
         if all(S1(:)==S2(:))
-            fprintf("Pass\n")
+            if(count==size(S2,1))
+                fprintf("Pass\n")
+            else
+                fprintf("Row count fail\n")
+                count
+                size(S2,1)
+                return
+            end
         else
             blocks
             colors

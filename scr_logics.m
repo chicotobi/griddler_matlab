@@ -1,10 +1,12 @@
 clc; clear; close all
 
 %inp_nr = 200968;
-%inp_nr = 147510;
-inp_nr = 39756;
+inp_nr = 147510;
+%inp_nr = 39756;
+%inp_nr = 88712;
 %inp_nr = 22364;
 %inp_nr = 5654;
+%inp_nr = 90062;
 
 global cmap iter
 iter = 0;

@@ -22,17 +22,13 @@ for ori=1:2
             blocks = M{ori}{line};
             colors = C{ori}{line};
             l = dim(ori);
-            method = 1;
-            try
-                if(method==1)
-                    S = cr_sol_direct(blocks,colors,l)+1;
-                else
-                    S = cr_sol_rec(blocks,colors,l)+1;
-                end
-                fprintf('\tFinished sol O%iL%i.\n',ori,line);
-            catch ME
-                fprintf("\tDid not create O%iL%i.\n",ori,line)
+            [~,count] = cr_sol_direct(blocks,colors,l,1);
+            if(count<1e6)
+                S = cr_sol_direct(blocks,colors,l)+1;
+                fprintf('O%iL%i created.\n',ori,line);
+            else
                 S = "NotCreated";
+                fprintf("O%iL%i not created.\n",ori,line);
             end
             save(str1,'S','-v7.3');
         end

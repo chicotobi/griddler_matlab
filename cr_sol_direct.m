@@ -1,5 +1,8 @@
-function S = cr_sol_direct(blocks, colors, l)
+function [S, nrows] = cr_sol_direct(blocks, colors, l, onlycount)
 
+if ~exist('onlycount','var')
+    onlycount = 0;
+end
 ninp = numel(blocks);
 nwhites = l - sum(blocks);
 next_block_is_same_color = [diff(colors)==0, 0];
@@ -11,11 +14,12 @@ a = [nfreewhites,zeros(1,ninp)];
 t = 0;
 h = 0;
 nrows = alg_n_k(n,k);
-if(nrows>1e5)
-    throw(MException("cr_sol_direct:solutionTooBig"))
+if(onlycount)
+    S = [];
+    return
 end
 
-tell = 10000;
+tell = 1000000;
 
 S = zeros(nrows,l,"uint8");
 for j=1:nrows

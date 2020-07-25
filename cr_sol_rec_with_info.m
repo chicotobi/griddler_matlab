@@ -1,7 +1,13 @@
-function S = cr_sol_rec_with_info(blocks, colors, l, colPos)
+function [S, count] = cr_sol_rec_with_info(blocks, colors, l, colPos, onlycount)
 
+if ~exist('onlycount','var')
+    onlycount = 0;
+end
+S = [];
+count = 0;
 if(numel(blocks)==0 && l>=0)
     if(all(colPos(1,:)==1) || l==0)
+        count = 1;
         S = zeros(1,l,"uint8");
     else
         S = [];
@@ -16,7 +22,11 @@ end
 
 tmp = sum(colPos);
 if(min(tmp)==size(colPos,1))
-    S = cr_sol_direct(blocks,colors,l);
+    if(onlycount)
+        [~,count] = cr_sol_direct(blocks,colors,l,1);
+    else
+        S = cr_sol_direct(blocks,colors,l);
+    end
     return
 end
 
@@ -25,7 +35,6 @@ idx = find(tmp==min(tmp));
 idx = idx(minidx);
 
 ncol = size(colPos,1);
-S = [];
 for col=1:ncol
     if(colPos(col,idx)==1)
         if(col==1)
@@ -39,13 +48,19 @@ for col=1:ncol
                 rlength = l - idx;
                 rblocks = blocks(i+1:end);
                 rcolors = colors(i+1:end);
-                Sl = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos);
-                Sm = 0;
-                Sr = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos);
-                if(size(Sl,1)>0 && size(Sr,1)>0)
-                    [tmp0,tmp1,tmp2] = ndgrid(1:size(Sl,1),1,1:size(Sr,1));
-                    S0 = [Sl(tmp0,:),Sm(tmp1,:),Sr(tmp2,:)];
-                    S = [S;S0];
+                if(onlycount)
+                    [~, countl] = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos, 1);
+                    [~, countr] = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos, 1);
+                    count = count + countl * countr;
+                else
+                    Sl = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos);
+                    Sm = 0;
+                    Sr = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos);
+                    if(size(Sl,1)>0 && size(Sr,1)>0)
+                        [tmp0,tmp1,tmp2] = ndgrid(1:size(Sl,1),1,1:size(Sr,1));
+                        S0 = [Sl(tmp0,:),Sm(tmp1,:),Sr(tmp2,:)];
+                        S = [S;S0];
+                    end
                 end
             end
         else
@@ -85,19 +100,25 @@ for col=1:ncol
                     if(llength>=0 && rlength>=0 && llength<=size(colPos,2) && rlength<=size(colPos,2))
                         lcolPos = colPos(:,1:llength);
                         rcolPos = colPos(:,end-rlength+1:end);
-                        Sl = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos);
-                        Sm = ones(1,b,"uint8")*c;
-                        Sr = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos);
-                        if(size(Sl,1)>0 && size(Sr,1)>0)
-                            if(lsame)
-                                Sl = [Sl zeros(size(Sl,1),1,"uint8")];
+                        if(onlycount)
+                            [~,countl] = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos,1);
+                            [~,countr] = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos,1);
+                            count = count + countl * countr;
+                        else
+                            Sl = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos);
+                            Sm = ones(1,b,"uint8")*c;
+                            Sr = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos);
+                            if(size(Sl,1)>0 && size(Sr,1)>0)
+                                if(lsame)
+                                    Sl = [Sl zeros(size(Sl,1),1,"uint8")];
+                                end
+                                if(rsame)
+                                    Sr = [zeros(size(Sr,1),1,"uint8") Sr];
+                                end
+                                [tmp0,tmp1,tmp2] = ndgrid(1:size(Sl,1),1,1:size(Sr,1));
+                                S0 = [Sl(tmp0,:),Sm(tmp1,:),Sr(tmp2,:)];
+                                S = [S;S0];
                             end
-                            if(rsame)
-                                Sr = [zeros(size(Sr,1),1,"uint8") Sr];
-                            end
-                            [tmp0,tmp1,tmp2] = ndgrid(1:size(Sl,1),1,1:size(Sr,1));
-                            S0 = [Sl(tmp0,:),Sm(tmp1,:),Sr(tmp2,:)];
-                            S = [S;S0];
                         end
                     end
                 end

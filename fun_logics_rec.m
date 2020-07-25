@@ -19,7 +19,10 @@ for i=1:inc_level
     ind = strcat(ind,'--');
 end
 
+min_threshold = 1e6;
+threshold = min_threshold;
 while true
+    created_line = 0;
     colorPossible_old = colorPossible;
     for ori=1:2
         for line=1:dim(ori)
@@ -30,11 +33,13 @@ while true
                 colors = C{ori}{line};
                 l = dim(3-ori);
                 colPos = squeeze(colorPossible(line,:,:))';
-                try
-                    posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos)+1;
+                [~,count] = cr_sol_rec_with_info(blocks,colors,l,colPos,1);
+                if(count<threshold)
+                    created_line = 1;
+                    posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0)+1;
                     fprintf("In Ori %i Line %i created %i solutions.\n",ori,line,size(posSol{ori}{line},1));
-                catch ME
-                    fprintf("In Ori %i Line %i solution number still too big.\n",ori,line);
+                else
+                    fprintf("In Ori %i Line %i #solutions %i bigger than threshold %i.\n",ori,line,count,threshold);
                     posSol{ori}{line} = "NotCreated";
                 end
             else
@@ -89,44 +94,11 @@ while true
     end
     
     %Increase guess level
-    if sum((colorPossible_old(:)-colorPossible(:)).^2)==0
-        
-        %Copy all solutions
-        thPosSol = posSol;
-        
-        %Increase inception level
-        inc_level=inc_level+1;
-        
-        %Now search for a line with minimal number of possible solutions
-        min_s = Inf;
-        for ori=1:2
-            for line=1:dim(ori)
-                if 1 < size(thPosSol{ori}{line},1) && size(thPosSol{ori}{line},1) < min_s
-                    min_s = size(thPosSol{ori}{line},1);
-                    min_idx = [ori,line];
-                end
-            end
-        end
-        
-        %Now choose the first solution of this line to be correct
-        thPosSol{min_idx(1),min_idx(2)} = thPosSol{min_idx(1),min_idx(2)}(1,:);
-        
-        %Now go deeper
-        fprintf(strcat(ind,'Guess correct solution in O%iL%i of  %i solutions there.\n'),min_idx(1),min_idx(2),min_s);
-        [thColorPossible, err] = fun_logics_rec(inp_nr,thPosSol, colorPossible, inc_level);
-        
-        %If you receive an error, the chosen solution was not the correct
-        %one => delete it, and go on.
-        %Otherwise the solution criterion must be hit => solved!
-        if err
-            fprintf(strcat(ind,'Invalid solution in O%iL%i found and dropped, remaining %i solutions.\n'),min_idx(1),min_idx(2),min_s-1);
-            posSol{min_idx(1),min_idx(2)} = posSol{min_idx(1),min_idx(2)}(2:end,:);
-            inc_level = inc_level - 1;
-        else
-            colorPossible = thColorPossible;
-            fprintf(strcat(ind,'Returned from inception level %i. Solved!\n'),inc_level);
-            return;
-        end
+    if sum((colorPossible_old(:)-colorPossible(:)).^2)==0 && ~created_line
+        threshold = threshold * 4;
+        fprintf("Increase threshold to %i.\n",threshold);
+    else
+        threshold = max(min_threshold,threshold/2);
     end
     
 end

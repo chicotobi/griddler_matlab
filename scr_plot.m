@@ -43,6 +43,9 @@ if(line>0)
     xx=zeros(dim(1),1);
     for line=1:dim(1)
         xx(line) = size(posSol{1}{line},1);
+        if(class(posSol{1}{line})=="string")
+            xx(line) = 1e10;
+        end
     end
     semilogy(xx,'-x');
     xlim([0 dim(1)])
@@ -53,6 +56,9 @@ if(line>0)
     xx=zeros(dim(2),1);
     for line=1:dim(2)
         xx(line) = size(posSol{2}{line},1);
+        if(class(posSol{2}{line})=="string")
+            xx(line) = 1e10;
+        end
     end
     semilogy(xx,'-x');
     xlim([0 dim(2)])
