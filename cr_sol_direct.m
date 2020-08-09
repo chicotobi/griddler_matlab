@@ -16,8 +16,6 @@ if(onlycount)
     return
 end
 
-tell = 1000000;
-
 S = zeros(nrows,l,"uint8");
 for j=1:nrows
     idx = 1+a(1);
@@ -27,9 +25,6 @@ for j=1:nrows
     end
     if(j==nrows)
         break;
-    end
-    if(mod(j,tell)==0)
-        fprintf('\tshifting... %i of %i compositions\n',j,nrows);
     end
     if ( 1 < t )
         h = 0;

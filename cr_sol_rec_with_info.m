@@ -1,4 +1,12 @@
-function [S, count] = cr_sol_rec_with_info(blocks, colors, l, colPos, onlycount)
+function [S, count] = cr_sol_rec_with_info(blocks, colors, l, colPos, onlycount, p)
+
+if(~onlycount)
+    [~, upper_bound] = cr_sol_direct(blocks,colors,l,1);
+    if(upper_bound < p.max_upper_bound)
+        [S, count] = cr_sol_direct_with_info(blocks,colors,l,colPos);
+        return;
+    end
+end
 
 S = [];
 count = 0;
@@ -16,11 +24,7 @@ end
 
 tmp = sum(colPos);
 if(min(tmp)==size(colPos,1))
-    if(onlycount)
-        [~,count] = cr_sol_direct(blocks,colors,l,1);
-    else
-        S = cr_sol_direct(blocks,colors,l,0);
-    end
+    [S,count] = cr_sol_direct(blocks,colors,l,onlycount);
     return
 end
 
@@ -42,19 +46,14 @@ for col=1:ncol
                 rlength = l - idx;
                 rblocks = blocks(i+1:end);
                 rcolors = colors(i+1:end);
-                if(onlycount)
-                    [~, countl] = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos, 1);
-                    [~, countr] = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos, 1);
-                    count = count + countl * countr;
-                else
-                    Sl = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos,0);
-                    Sm = 0;
-                    Sr = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos,0);
-                    if(size(Sl,1)>0 && size(Sr,1)>0)
-                        [tmp0,tmp1,tmp2] = ndgrid(1:size(Sl,1),1,1:size(Sr,1));
-                        S0 = [Sl(tmp0,:),Sm(tmp1,:),Sr(tmp2,:)];
-                        S = [S;S0];
-                    end
+                [Sl, countl] = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos, onlycount,p);
+                [Sr, countr] = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos, onlycount,p);
+                count = count + countl * countr;
+                if(~onlycount && countl>0 && countr>0)
+                    idxl = repmat((1:countl)',countr,1);
+                    idxr = reshape(repmat((1:countr),countl,1),[],1);
+                    S0 = [Sl(idxl,:),zeros(countl*countr,1,'uint8'),Sr(idxr,:)];
+                    S = [S;S0];
                 end
             end
         else
@@ -94,23 +93,21 @@ for col=1:ncol
                     if(llength>=0 && rlength>=0 && llength<=size(colPos,2) && rlength<=size(colPos,2))
                         lcolPos = colPos(:,1:llength);
                         rcolPos = colPos(:,end-rlength+1:end);
-                        if(onlycount)
-                            [~,countl] = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos,1);
-                            [~,countr] = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos,1);
-                            count = count + countl * countr;
-                        else
-                            Sl = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos,0);
-                            Sm = ones(1,b,"uint8")*c;
-                            Sr = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos,0);
-                            if(size(Sl,1)>0 && size(Sr,1)>0)
+                        [Sl,countl] = cr_sol_rec_with_info(lblocks,lcolors,llength,lcolPos,onlycount,p);
+                        [Sr,countr] = cr_sol_rec_with_info(rblocks,rcolors,rlength,rcolPos,onlycount,p);
+                        count = count + countl * countr;
+                        if(~onlycount)
+                            if(countl>0 && countr>0)
+                                Sm = ones(countl*countr,b,'uint8')*c;
                                 if(lsame)
-                                    Sl = [Sl zeros(size(Sl,1),1,"uint8")];
+                                    Sm = [zeros(countl*countr,1,"uint8") Sm];
                                 end
                                 if(rsame)
-                                    Sr = [zeros(size(Sr,1),1,"uint8") Sr];
+                                    Sm = [Sm zeros(countl*countr,1,"uint8")];
                                 end
-                                [tmp0,tmp1,tmp2] = ndgrid(1:size(Sl,1),1,1:size(Sr,1));
-                                S0 = [Sl(tmp0,:),Sm(tmp1,:),Sr(tmp2,:)];
+                                idxl = repmat((1:countl)',countr,1);
+                                idxr = reshape(repmat((1:countr),countl,1),[],1);
+                                S0 = [Sl(idxl,:),Sm,Sr(idxr,:)];
                                 S = [S;S0];
                             end
                         end

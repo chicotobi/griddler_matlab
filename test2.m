@@ -9,20 +9,11 @@ for i=1:1000
     colPos = rand(ncolors,l)>0.2;
     
     % solver one for testing
-    S1 = cr_sol_direct(blocks,colors,l);
-    for i=1:size(colPos,1)
-        for j=1:size(colPos,2)
-            if(colPos(i,j)==0)
-                idxKeep = S1(:,j)~=i-1;
-                S1 = S1(idxKeep,:);
-            end
-        end
-    end
+    S1 = cr_sol_direct_with_info(blocks,colors,l,colPos);
     S1 = sortrows(S1);
     
     % solver two
-    [~,count] = cr_sol_rec_with_info(blocks,colors,l,colPos, 1);
-    S2 = cr_sol_rec_with_info(blocks,colors,l,colPos);
+    [S2, count] = cr_sol_rec_with_info(blocks,colors,l,colPos, 0);
     S2 = sortrows(S2);
     
     if(size(S1,1)==size(S2,1))
