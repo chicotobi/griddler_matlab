@@ -1,10 +1,10 @@
-function solve_logical(inp_nr,p,more_plots)
+function solve_logical(p)
 
 % Parameters
 threshold = p.min_threshold;
 
 % Creation
-f_str = num2str(inp_nr);
+f_str = num2str(p.inp_nr);
 [H, V, HC, VC, cmap] = translate_griddlers_net(f_str);
 M = {H,V};
 C = {HC,VC};
@@ -54,7 +54,7 @@ while true
                     posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0,p)+1;
                     fprintf("O%iL%i created with %i solutions.\n",ori,line,count);
                 else
-                    posSol{ori}{line} = num2str(count);
+                posSol{ori}{line} = num2str(count);
                     fprintf("O%iL%i not created with %i solutions. Threshold %i.\n",ori,line,count,threshold);
                 end
             end
@@ -90,7 +90,7 @@ while true
                 if(change)
                     fprintf('O%iL%i left %i solutions.\n',ori,line,size(posSol{ori}{line},1));
                 end
-                if(more_plots && (change || created_this_line))
+                if(p.more_plots && (change || created_this_line))
                     plot_progress(colorPossible,posSol,cmap,iter,threshold,ori,line);
                 end
             end
@@ -101,7 +101,6 @@ while true
     % If solved
     if all(sum(colorPossible,3)==1,"all")
         if(last==1)
-            toc;
             plot_progress(colorPossible,posSol,cmap,iter,threshold,1,-1);
             return;
         end

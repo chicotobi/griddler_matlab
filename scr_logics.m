@@ -1,16 +1,22 @@
 clc; clear; close all
 
-inp_nr = 200968;
-%inp_nr = 147510;
-%inp_nr = 39756;
-%inp_nr = 88712;
-%inp_nr = 90062;
-%inp_nr = 5654;
-%inp_nr = 22364;
+arr_inp_nr = [200968 39756 147510 88712 90062 5654 22364];
+arr_max_upper_bound = 1000;
+arr_min_threshold = round(10.^linspace(3,6,4));
 
-p.max_upper_bound = 1e3;
-p.min_threshold = 1e6;
+p.inp_nr = arr_inp_nr(4);
+p.more_plots = 0;
 
-tic;
-solve_logical(inp_nr,p,0);
-toc;
+f1 = fopen("results.csv","a");
+%fprintf(f1,"p.inp_nr,p.min_threshold,p.max_upper_bound,t\n");
+for i=1:numel(arr_min_threshold)
+    for j=1:numel(arr_max_upper_bound)
+        p.min_threshold = arr_min_threshold(i);
+        p.max_upper_bound = arr_max_upper_bound(j);
+        tic;
+        solve_logical(p);
+        t = toc;
+        fprintf(f1,"%i,%i,%i,%f\n",p.inp_nr,p.min_threshold,p.max_upper_bound,t);     
+    end
+end
+fclose(f1);
