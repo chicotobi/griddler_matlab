@@ -6,9 +6,10 @@ arr_min_threshold = round(10.^linspace(3,6,4));
 
 p.inp_nr = arr_inp_nr(4);
 p.more_plots = 0;
+p.method = 1;
 
-f1 = fopen("results.csv","a");
-%fprintf(f1,"p.inp_nr,p.min_threshold,p.max_upper_bound,t\n");
+f1 = fopen("results.csv","w");
+fprintf(f1,"p.method,p.inp_nr,p.min_threshold,p.max_upper_bound,t\n");
 for i=1:numel(arr_min_threshold)
     for j=1:numel(arr_max_upper_bound)
         p.min_threshold = arr_min_threshold(i);
@@ -16,7 +17,7 @@ for i=1:numel(arr_min_threshold)
         tic;
         solve_logical(p);
         t = toc;
-        fprintf(f1,"%i,%i,%i,%f\n",p.inp_nr,p.min_threshold,p.max_upper_bound,t);     
+        fprintf(f1,"%i,%i,%i,%i,%i,%f\n",p.method,p.inp_nr,p.min_threshold,p.max_upper_bound,t);     
     end
 end
 fclose(f1);
