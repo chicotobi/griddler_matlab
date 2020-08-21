@@ -2,8 +2,10 @@ function solve_logical(p)
 
 % Parameters
 threshold = p.min_threshold;
+iter = 0;
 
 % Creation
+tic;
 f_str = num2str(p.inp_nr);
 [H, V, HC, VC, cmap] = translate_griddlers_net(f_str);
 M = {H,V};
@@ -28,11 +30,15 @@ for ori=1:2
 end
 nColors = size(cmap,1)-1;
 colorPossible = true(dim(1),dim(2),nColors);
+t = toc;
+f1 = fopen("results.csv","a");
+fprintf(f1,"%i,%i,%i,%i,%i,%f\n",p.inp_nr,p.method,p.min_threshold,p.max_upper_bound,iter,t);
+fclose(f1);
 
 % Solution
-iter = 0;
 last = 0;
 while true
+    tic;
     plot_progress(colorPossible,posSol,cmap,iter,threshold,1,0);
     iter = iter + 1;
     created_line = 0;
@@ -146,6 +152,10 @@ while true
             fprintf("O%iL%i created with %i solutions.\n",ori,line,count);
         end
     end
+    t = toc;
+    f1 = fopen("results.csv","a");
+    fprintf(f1,"%i,%i,%i,%i,%i,%f\n",p.inp_nr,p.method,p.min_threshold,p.max_upper_bound,iter,t);
+    fclose(f1);
 end
 
 end

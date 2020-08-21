@@ -8,16 +8,11 @@ p.inp_nr = arr_inp_nr(4);
 p.more_plots = 0;
 p.method = 1;
 
-f1 = fopen("results.csv","w");
-fprintf(f1,"p.method,p.inp_nr,p.min_threshold,p.max_upper_bound,t\n");
 for i=1:numel(arr_min_threshold)
     for j=1:numel(arr_max_upper_bound)
         p.min_threshold = arr_min_threshold(i);
         p.max_upper_bound = arr_max_upper_bound(j);
-        tic;
         solve_logical(p);
-        t = toc;
-        fprintf(f1,"%i,%i,%i,%i,%i,%f\n",p.method,p.inp_nr,p.min_threshold,p.max_upper_bound,t);     
     end
 end
 fclose(f1);
