@@ -66,12 +66,13 @@ while true
                     colorPossible(line,:,color) = v & colorPossible(line,:,color);
                     
                     npSol = size(posSol{ori}{line},1);
-                    remove_this_solution = false(npSol,dim(3-ori),nColors);
+                    remove_this_solution = false(npSol,dim(3-ori));
                     colorPossibleLine = colorPossible(line,:,color);
+                    tmp1 = (posSol{ori}{line}==color);
                     for i = 1:dim(3-ori)
-                        remove_this_solution(:,i,color) = (~colorPossibleLine(i)) & (posSol{ori}{line}(:,i)==color);
+                        remove_this_solution(:,i) = (~colorPossibleLine(i)) & tmp1(:,i);
                     end
-                    idxKeep = ~any(remove_this_solution,[2,3]);
+                    idxKeep = ~any(remove_this_solution,2);
                     posSol{ori}{line} = posSol{ori}{line}(idxKeep,:);
                     change = change | (sum(idxKeep)~=npSol);
                     

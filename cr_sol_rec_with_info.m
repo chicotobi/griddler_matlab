@@ -10,10 +10,22 @@ end
 
 S = [];
 count = 0;
+if l<0
+    return;
+end
 if(numel(blocks)==0 && l>=0)
-    if(all(colPos(1,:)==1) || l==0)
+    if(l==0)
         count = 1;
-        S = zeros(1,l,"uint8");
+        if(~onlycount)
+            S = zeros(1,1,"uint8");
+        end
+        return
+    end
+    if(all(colPos(1,:)==1))
+        count = 1;
+        if(~onlycount)
+            S = zeros(1,l,"uint8");
+        end
     end
     return;
 end
