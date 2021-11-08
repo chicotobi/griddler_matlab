@@ -21,10 +21,14 @@ for ori=1:2
         [~,count] = cr_sol_direct(blocks,colors,l,1);
         if(count < threshold)
             posSol{ori}{line} = cr_sol_direct(blocks,colors,l,0)+1;
-            fprintf('O%iL%i created with %i solutions.\n',ori,line,count);
+            if(p.reporting_level>0)
+                fprintf('O%iL%i created with %i solutions.\n',ori,line,count);
+            end
         else
             posSol{ori}{line} = num2str(count);
-            fprintf("O%iL%i not created with %i solutions.\n",ori,line,count);
+            if(p.reporting_level>0)
+                fprintf("O%iL%i not created with %i solutions.\n",ori,line,count);
+            end
         end
     end
 end
@@ -39,7 +43,9 @@ fclose(f1);
 last = 0;
 while true
     tic;
-    plot_progress(colorPossible,posSol,cmap,iter,threshold,1,0);
+    if(p.reporting_level>0)
+        plot_progress(colorPossible,posSol,cmap,iter,threshold,1,0);
+    end
     iter = iter + 1;
     created_line = 0;
     colorPossible_old = colorPossible;
@@ -58,10 +64,14 @@ while true
                     created_line = 1;
                     created_this_line = 1;
                     posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0,p)+1;
-                    fprintf("O%iL%i created with %i solutions.\n",ori,line,count);
+                    if(p.reporting_level>0)
+                        fprintf("O%iL%i created with %i solutions.\n",ori,line,count);
+                    end
                 else
                     posSol{ori}{line} = num2str(count);
-                    fprintf("O%iL%i not created with %i solutions. Threshold %i.\n",ori,line,count,threshold);
+                    if(p.reporting_level>0)
+                        fprintf("O%iL%i not created with %i solutions. Threshold %i.\n",ori,line,count,threshold);
+                    end
                 end
             end
             if(~isa(tmp,'char'))
@@ -94,10 +104,10 @@ while true
                         end
                     end
                 end
-                if(change)
+                if(p.reporting_level>0 && change)
                     fprintf('O%iL%i left %i solutions.\n',ori,line,size(posSol{ori}{line},1));
                 end
-                if(p.more_plots && (change || created_this_line))
+                if(p.reporting_level>1 && (change || created_this_line))
                     plot_progress(colorPossible,posSol,cmap,iter,threshold,ori,line);
                 end
             end
@@ -108,8 +118,10 @@ while true
     % If solved
     if all(sum(colorPossible,3)==1,"all")
         if(last==1)
-            plot_progress(colorPossible,posSol,cmap,iter,threshold,1,-1);
-            return;
+            if(p.reporting_level>0)
+                plot_progress(colorPossible,posSol,cmap,iter,threshold,1,-1);
+            end
+            break;
         end
         last = 1;
     end
@@ -149,7 +161,9 @@ while true
                 colPos = squeeze(colorPossible(:,line,:))';
             end
             posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0,p)+1;
-            fprintf("O%iL%i created with %i solutions.\n",ori,line,count);
+            if(p.reporting_level>0)
+                fprintf("O%iL%i created with %i solutions.\n",ori,line,count);
+            end
         end
     end
     t = toc;
@@ -157,5 +171,11 @@ while true
     fprintf(f1,"%i,%i,%i,%i,%i,%f\n",p.inp_nr,p.method,p.min_threshold,p.max_upper_bound,iter,t);
     fclose(f1);
 end
+
+% Add a dummy line to confirm that the function finished correctly
+f1 = fopen("results.csv","a");
+fprintf(f1,"%i,%i,%i,%i,%i,%f\n",p.inp_nr,p.method,p.min_threshold,p.max_upper_bound,-1,0);
+fclose(f1);
+fprintf("Finished p=(%i,%i,%i,%i)\n",p.inp_nr,p.method,p.min_threshold,p.max_upper_bound);
 
 end
