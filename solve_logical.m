@@ -13,8 +13,10 @@ M = {H,V};
 C = {HC,VC};
 dim = [size(H,1),size(V,1)];
 posSol = cell(2,1);
+status = cell(2,1);
 for ori=1:2
     posSol{ori} = cell(dim(ori),1);
+    status{ori} = cell(dim(ori),1);
     for line=1:dim(ori)
         blocks = M{ori}{line};
         colors = C{ori}{line};
@@ -22,11 +24,12 @@ for ori=1:2
         [~,count] = cr_sol_direct(blocks,colors,l,1);
         if(count < threshold)
             posSol{ori}{line} = cr_sol_direct(blocks,colors,l,0)+1;
+            status{ori}{line} = [line count 1];
             if(p.verbose)
                 fprintf('O%iL%03d %s - created.\n',ori,line,prty(count));
             end
         else
-            posSol{ori}{line} = num2str(count);
+            status{ori}{line} = [line count 0];
             if(p.verbose)
                 fprintf("O%iL%03d %s - not created.\n",ori,line,prty(count));
             end
@@ -51,7 +54,7 @@ end
 
 t = toc;
 f1 = fopen("results.csv","a");
-fprintf(f1,"%i,%i,%i,%i,%i,%f\n",p.inp_nr,p.method,p.min_threshold,p.max_upper_bound,iter,t);
+fprintf(f1,"%i,%i,%i,%i,%f\n",p.inp_nr,p.min_threshold,p.max_upper_bound,iter,t);
 fclose(f1);
 
 % Solution
@@ -59,7 +62,7 @@ last = 0;
 while true
     tic;
     if(p.verbose)
-        plot_progress(colorPossible,posSol,cmap,iter,threshold,1,0);
+        plot_progress(colorPossible,status,cmap,iter,threshold,1,0);
     end
     iter = iter + 1;
     fprintf("\nIteration %i\n",iter);
@@ -67,8 +70,7 @@ while true
     colorPossible_old = colorPossible;
     for ori=1:2
         for line=1:dim(ori)
-            tmp = posSol{ori}{line};
-            if(~isa(tmp,'char'))
+            if(status{ori}{line}(3)==1)
                 n_old = size(posSol{ori}{line},1);
                 for color=1:nColors
                     % Update
@@ -101,7 +103,7 @@ while true
                 n_new = size(posSol{ori}{line},1);
                 if(p.verbose && (n_new<n_old))
                     fprintf('O%iL%03d %s - was %s.\n',ori,line,prty(n_new),prty(n_old));
-                    plot_progress(colorPossible,posSol,cmap,iter,threshold,ori,line);
+                    plot_progress(colorPossible,status,cmap,iter,threshold,ori,line);
                 end
             end
         end
@@ -112,7 +114,7 @@ while true
     if all(sum(colorPossible,3)==1,"all")
         if(last==1)
             if(p.verbose)
-                plot_progress(colorPossible,posSol,cmap,iter,threshold,1,-1);
+                plot_progress(colorPossible,status,cmap,iter,threshold,1,-1);
             end
             break;
         end
@@ -126,8 +128,7 @@ while true
         vals = [];
         for ori=1:2
             for line=1:dim(ori)
-                tmp = posSol{ori}{line};
-                if(isa(tmp,'char'))
+                if(status{ori}{line}(3)==0)
                     blocks = M{ori}{line};
                     colors = C{ori}{line};
                     l = dim(3-ori);
@@ -140,6 +141,7 @@ while true
                     if(count < threshold)
                         created_line = true;
                         posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0,p)+1;
+                        status{ori}{line} = [line count 1];
                         if(p.verbose)
                             fprintf("O%iL%03d %s - created by threshold.\n",ori,line,prty(count));
                         end
@@ -173,14 +175,14 @@ while true
     end
     t = toc;
     f1 = fopen("results.csv","a");
-    fprintf(f1,"%i,%i,%i,%i,%i,%f\n",p.inp_nr,p.method,p.min_threshold,p.max_upper_bound,iter,t);
+    fprintf(f1,"%i,%i,%i,%i,%f\n",p.inp_nr,p.min_threshold,p.max_upper_bound,iter,t);
     fclose(f1);
 end
 
 % Add a dummy line to confirm that the function finished correctly
 f1 = fopen("results.csv","a");
-fprintf(f1,"%i,%i,%i,%i,%i,%f\n",p.inp_nr,p.method,p.min_threshold,p.max_upper_bound,-1,0);
+fprintf(f1,"%i,%i,%i,%i,%f\n",p.inp_nr,p.min_threshold,p.max_upper_bound,-1,0);
 fclose(f1);
-fprintf("Finished p=(%i,%i,%i,%i)\n",p.inp_nr,p.method,p.min_threshold,p.max_upper_bound);
+fprintf("Finished p=(%i,%i,%i)\n",p.inp_nr,p.min_threshold,p.max_upper_bound);
 
 end

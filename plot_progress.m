@@ -1,4 +1,4 @@
-function plot_progress(colorPossible,posSol,cmap,iter,threshold,ori,ll)
+function plot_progress(colorPossible,status,cmap,iter,threshold,ori,ll)
 clf
 
 % Preparation
@@ -47,12 +47,9 @@ if(ll>-1)
     xx=zeros(dim(1),1);
     mark = [];
     for i=1:dim(1)
-        v = posSol{1}{i};
-        if(isa(v,'char'))
-            xx(i) = str2double(v);
+        xx(i) = status{1}{i}(2);
+        if(status{1}{i}(3) == 0)
             mark = [mark;i, xx(i)];
-        else
-            xx(i) = size(v,1);
         end
     end
     semilogy(xx,'-x');
@@ -73,12 +70,9 @@ if(ll>-1)
     xx=zeros(dim(2),1);
     mark = [];
     for i=1:dim(2)
-        v = posSol{2}{i};
-        if(isa(v,'char'))
-            xx(i) = str2double(v);
+        xx(i) = status{2}{i}(2);
+        if(status{2}{i}(3) == 0)
             mark = [mark;i, xx(i)];
-        else
-            xx(i) = size(v,1);
         end
     end
     semilogy(xx,'-x');
