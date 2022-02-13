@@ -6,6 +6,7 @@ iter = 0;
 
 % Creation
 tic;
+fprintf("\nIteration %i\n",iter);
 f_str = num2str(p.inp_nr);
 [H, V, HC, VC, cmap] = translate_griddlers_net(f_str);
 M = {H,V};
@@ -21,19 +22,33 @@ for ori=1:2
         [~,count] = cr_sol_direct(blocks,colors,l,1);
         if(count < threshold)
             posSol{ori}{line} = cr_sol_direct(blocks,colors,l,0)+1;
-            if(p.reporting_level>0)
-                fprintf('O%iL%i created with %i solutions.\n',ori,line,count);
+            if(p.verbose)
+                fprintf('O%iL%03d %s - created.\n',ori,line,prty(count));
             end
         else
             posSol{ori}{line} = num2str(count);
-            if(p.reporting_level>0)
-                fprintf("O%iL%i not created with %i solutions.\n",ori,line,count);
+            if(p.verbose)
+                fprintf("O%iL%03d %s - not created.\n",ori,line,prty(count));
             end
         end
     end
 end
 nColors = size(cmap,1)-1;
 colorPossible = true(dim(1),dim(2),nColors);
+
+% % If the color is not even present in the colors, it can directly be
+% % removed - without knowing the order
+for ori=1:2
+    for line=1:dim(ori)
+        for c=1:(nColors-1)
+            if all(C{ori}{line}~=c)
+                colorPossible(line,:,c+1) = false;
+            end
+        end
+    end
+    colorPossible = permute(colorPossible,[2,1,3]);
+end
+
 t = toc;
 f1 = fopen("results.csv","a");
 fprintf(f1,"%i,%i,%i,%i,%i,%f\n",p.inp_nr,p.method,p.min_threshold,p.max_upper_bound,iter,t);
@@ -43,44 +58,24 @@ fclose(f1);
 last = 0;
 while true
     tic;
-    if(p.reporting_level>0)
+    if(p.verbose)
         plot_progress(colorPossible,posSol,cmap,iter,threshold,1,0);
     end
     iter = iter + 1;
+    fprintf("\nIteration %i\n",iter);
     created_line = 0;
     colorPossible_old = colorPossible;
     for ori=1:2
         for line=1:dim(ori)
-            created_this_line = 0;
-            change = 0;
             tmp = posSol{ori}{line};
-            if(isa(tmp,'char'))
-                blocks = M{ori}{line};
-                colors = C{ori}{line};
-                l = dim(3-ori);
-                colPos = squeeze(colorPossible(line,:,:))';
-                [~,count] = cr_sol_rec_with_info(blocks,colors,l,colPos,1,p);
-                if(count < threshold)
-                    created_line = 1;
-                    created_this_line = 1;
-                    posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0,p)+1;
-                    if(p.reporting_level>0)
-                        fprintf("O%iL%i created with %i solutions.\n",ori,line,count);
-                    end
-                else
-                    posSol{ori}{line} = num2str(count);
-                    if(p.reporting_level>0)
-                        fprintf("O%iL%i not created with %i solutions. Threshold %i.\n",ori,line,count,threshold);
-                    end
-                end
-            end
             if(~isa(tmp,'char'))
+                n_old = size(posSol{ori}{line},1);
                 for color=1:nColors
                     % Update
                     tmp = posSol{ori}{line};
                     v = (sum(tmp==color,1)>0);
                     colorPossible(line,:,color) = v & colorPossible(line,:,color);
-                    
+
                     npSol = size(posSol{ori}{line},1);
                     remove_this_solution = false(npSol,dim(3-ori));
                     colorPossibleLine = colorPossible(line,:,color);
@@ -90,8 +85,7 @@ while true
                     end
                     idxKeep = ~any(remove_this_solution,2);
                     posSol{ori}{line} = posSol{ori}{line}(idxKeep,:);
-                    change = change | (sum(idxKeep)~=npSol);
-                    
+
                     for i=1:dim(3-ori)
                         c1 = min(posSol{ori}{line}(:,i));
                         c2 = max(posSol{ori}{line}(:,i));
@@ -104,65 +98,76 @@ while true
                         end
                     end
                 end
-                if(p.reporting_level>0 && change)
-                    fprintf('O%iL%i left %i solutions.\n',ori,line,size(posSol{ori}{line},1));
-                end
-                if(p.reporting_level>1 && (change || created_this_line))
+                n_new = size(posSol{ori}{line},1);
+                if(p.verbose && (n_new<n_old))
+                    fprintf('O%iL%03d %s - was %s.\n',ori,line,prty(n_new),prty(n_old));
                     plot_progress(colorPossible,posSol,cmap,iter,threshold,ori,line);
                 end
             end
         end
         colorPossible = permute(colorPossible,[2,1,3]);
     end
-    
+
     % If solved
     if all(sum(colorPossible,3)==1,"all")
         if(last==1)
-            if(p.reporting_level>0)
+            if(p.verbose)
                 plot_progress(colorPossible,posSol,cmap,iter,threshold,1,-1);
             end
             break;
         end
         last = 1;
     end
-    
+
     % What happens if there is no change?
-    if(p.method==1)
-        % Increase threshold
-        if sum((colorPossible_old(:)-colorPossible(:)).^2)==0 && ~created_line
-            threshold = threshold * 4;
-            fprintf("Increase threshold to %i.\n",threshold);
-        else
-            threshold = max(p.min_threshold,threshold/2);
-        end
-    else
-        % Create the solution with the least number of possibilities
-        if sum((colorPossible_old(:)-colorPossible(:)).^2)==0 && ~created_line
-            n0 = Inf;
-            for it_ori=1:2
-                for it_line=1:dim(it_ori)
-                    tmp = posSol{it_ori}{it_line};
-                    if(isa(tmp,'char'))
-                        n = str2double(tmp);
-                        if(n<n0)
-                            n0 = n;
-                            ori = it_ori;
-                            line = it_line;
+    if sum((colorPossible_old(:)-colorPossible(:)).^2)==0
+        % Update the solution numbers
+        created_line = false;
+        vals = [];
+        for ori=1:2
+            for line=1:dim(ori)
+                tmp = posSol{ori}{line};
+                if(isa(tmp,'char'))
+                    blocks = M{ori}{line};
+                    colors = C{ori}{line};
+                    l = dim(3-ori);
+                    if(ori==1)
+                        colPos = squeeze(colorPossible(line,:,:))';
+                    else
+                        colPos = squeeze(colorPossible(:,line,:))';
+                    end
+                    [~,count] = cr_sol_rec_with_info(blocks,colors,l,colPos,1,p);
+                    if(count < threshold)
+                        created_line = true;
+                        posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0,p)+1;
+                        if(p.verbose)
+                            fprintf("O%iL%03d %s - created by threshold.\n",ori,line,prty(count));
                         end
+                    else
+                        vals = [vals;ori line count];
                     end
                 end
             end
-            blocks = M{ori}{line};
-            colors = C{ori}{line};
-            l = dim(3-ori);
-            if(ori==1)
-                colPos = squeeze(colorPossible(line,:,:))';
-            else
-                colPos = squeeze(colorPossible(:,line,:))';
-            end
-            posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0,p)+1;
-            if(p.reporting_level>0)
-                fprintf("O%iL%i created with %i solutions.\n",ori,line,count);
+        end
+        % If no new line is created, choose some with smallest count
+        if ~created_line
+            vals = sortrows(vals,3);
+            nline = min(3,size(vals,1));
+            for i=1:nline
+                ori = vals(i,1);
+                line = vals(i,2);
+                blocks = M{ori}{line};
+                colors = C{ori}{line};
+                l = dim(3-ori);
+                if(ori==1)
+                    colPos = squeeze(colorPossible(line,:,:))';
+                else
+                    colPos = squeeze(colorPossible(:,line,:))';
+                end
+                posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0,p) + 1;
+                if(p.verbose)
+                    fprintf("O%iL%03d %s - created by force.\n",ori,line,prty(vals(i,3)));
+                end
             end
         end
     end

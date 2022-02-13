@@ -57,13 +57,17 @@ if(ll>-1)
     end
     semilogy(xx,'-x');
     hold on
+    if(ori==1)
+        xline(ll)
+    end
     if(size(mark,1)>0)
         semilogy(mark(:,1),mark(:,2),'ro');
     end
     line([1 dim(1)],[threshold threshold],"Color","red")
     xlim([1 dim(1)])
     xlabel("Horizontal lines")
-    ylim([1 1e10])
+    up = max(10,ceil(log10(max(xx))));
+    ylim([1 10^up])
     
     subplot(2,2,4)
     xx=zeros(dim(2),1);
@@ -79,13 +83,17 @@ if(ll>-1)
     end
     semilogy(xx,'-x');
     hold on
+    if(ori==2)
+        xline(ll)
+    end
     if(size(mark,1)>0)
         semilogy(mark(:,1),mark(:,2),'ro');
     end
     line([1 dim(2)],[threshold threshold],"Color","red")
     xlim([1 dim(2)])
     xlabel("Vertical lines")
-    ylim([1 1e10])
+    up = max(10,ceil(log10(max(xx))));
+    ylim([1 10^up])
 end
 
 drawnow
