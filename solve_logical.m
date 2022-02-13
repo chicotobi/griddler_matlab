@@ -68,7 +68,7 @@ while ~finished
         iter = iter + 1;
         fprintf("\nIteration %i\n",iter/2);
         colorPossible_old = colorPossible;
-        arr = cell2mat(status{ori});
+        arr = sortrows(cell2mat(status{ori}),2);
         lines = arr(arr(:,3)==1,1)';
         for line=lines
             n_old = status{ori}{line}(2);
