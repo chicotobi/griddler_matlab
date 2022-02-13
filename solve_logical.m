@@ -58,8 +58,8 @@ fprintf(f1,"%i,%i,%i,%i,%f\n",p.inp_nr,p.min_threshold,p.max_upper_bound,iter,t)
 fclose(f1);
 
 % Solution
-last = 0;
-while true
+finished = false;
+while ~finished
     tic;
     if(p.verbose)
         plot_progress(colorPossible,status,cmap,iter,threshold,1,0);
@@ -71,7 +71,7 @@ while true
     for ori=1:2
         for line=1:dim(ori)
             if(status{ori}{line}(3)==1)
-                n_old = size(posSol{ori}{line},1);
+                n_old = status{ori}{line}(2);
                 for color=1:nColors
                     % Update
                     tmp = posSol{ori}{line};
@@ -100,7 +100,8 @@ while true
                         end
                     end
                 end
-                n_new = size(posSol{ori}{line},1);
+                status{ori}{line}(2) = size(posSol{ori}{line},1);
+                n_new = status{ori}{line}(2);
                 if(p.verbose && (n_new<n_old))
                     fprintf('O%iL%03d %s - was %s.\n',ori,line,prty(n_new),prty(n_old));
                     plot_progress(colorPossible,status,cmap,iter,threshold,ori,line);
@@ -112,13 +113,8 @@ while true
 
     % If solved
     if all(sum(colorPossible,3)==1,"all")
-        if(last==1)
-            if(p.verbose)
-                plot_progress(colorPossible,status,cmap,iter,threshold,1,-1);
-            end
-            break;
-        end
-        last = 1;
+        finished = true;
+        continue;
     end
 
     % What happens if there is no change?
@@ -177,6 +173,10 @@ while true
     f1 = fopen("results.csv","a");
     fprintf(f1,"%i,%i,%i,%i,%f\n",p.inp_nr,p.min_threshold,p.max_upper_bound,iter,t);
     fclose(f1);
+end
+
+if(p.verbose)
+    plot_progress(colorPossible,status,cmap,iter,threshold,1,-1);
 end
 
 % Add a dummy line to confirm that the function finished correctly
