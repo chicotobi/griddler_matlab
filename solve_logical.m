@@ -60,13 +60,13 @@ fclose(f1);
 % Solution
 finished = false;
 while ~finished
-    tic;
     if(p.verbose)
         plot_progress(colorPossible,status,cmap,iter,threshold,1,0);
     end
     for ori=1:2
+        tic;
         iter = iter + 1;
-        fprintf("\nIteration %i\n",iter/2);
+        fprintf("\nIteration %i\n",iter);
         colorPossible_old = colorPossible;
         arr = sortrows(cell2mat(status{ori}),2);
         lines = arr(arr(:,3)==1,1)';
@@ -155,13 +155,12 @@ while ~finished
                 end
             end
         end
-
         colorPossible = permute(colorPossible,[2,1,3]);
+        t = toc;
+        f1 = fopen("results.csv","a");
+        fprintf(f1,"%i,%i,%i,%i,%f\n",p.inp_nr,p.min_threshold,p.max_upper_bound,iter,t);
+        fclose(f1);
     end
-    t = toc;
-    f1 = fopen("results.csv","a");
-    fprintf(f1,"%i,%i,%i,%i,%f\n",p.inp_nr,p.min_threshold,p.max_upper_bound,iter,t);
-    fclose(f1);
 end
 
 if(p.verbose)
