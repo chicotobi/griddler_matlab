@@ -17,7 +17,7 @@ arr_inp_nr = [
     202358 %  30 x 30 - Maple leaf
     ];
 
-p.inp_nr = arr_inp_nr(1);
+p.inp_nr = arr_inp_nr(3);
 p.min_threshold = 1e6;
 p.max_upper_bound = 1000;
 p.verbose = true;

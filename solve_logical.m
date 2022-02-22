@@ -25,14 +25,10 @@ for ori=1:2
         if(count < threshold)
             posSol{ori}{line} = cr_sol_direct(blocks,colors,l,0)+1;
             status{ori}{line} = [line count 1];
-            if(p.verbose)
-                fprintf('O%iL%03d %s - created.\n',ori,line,prty(count));
-            end
+            msg(p,ori,line,count,'created');
         else
             status{ori}{line} = [line count 0];
-            if(p.verbose)
-                fprintf("O%iL%03d %s - not created.\n",ori,line,prty(count));
-            end
+            msg(p,ori,line,count,'counted');
         end
     end
 end
@@ -101,10 +97,14 @@ while ~finished
                 end
             end
             status{ori}{line}(2) = size(posSol{ori}{line},1);
-            n_new = status{ori}{line}(2);
-            if(p.verbose && (n_new<n_old))
-                fprintf('O%iL%03d %s - was %s.\n',ori,line,prty(n_new),prty(n_old));
-                plot_progress(colorPossible,status,cmap,iter,threshold,ori,line);
+            if n_old>1
+                n_new = status{ori}{line}(2);
+                if(p.verbose && (n_new<n_old))
+                    msg(p,ori,line,n_new,['was' prty(n_old)]);
+                    plot_progress(colorPossible,status,cmap,iter,threshold,ori,line);
+                else
+                    msg(p,ori,line,n_new,'no change');
+                end
             end
         end
 
@@ -131,10 +131,9 @@ while ~finished
                     created_lines = created_lines + 1;
                     posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0,p)+1;
                     status{ori}{line} = [line count 1];
-                    if(p.verbose)
-                        fprintf("O%iL%03d %s - created by threshold.\n",ori,line,prty(count));
-                    end
+                    msg(p,ori,line,count,'created by threshold');
                 else
+                    msg(p,ori,line,count,'counted');
                     status{ori}{line} = [line count 0];
                 end
                 if created_lines == 3
@@ -153,9 +152,7 @@ while ~finished
                     colPos = squeeze(colorPossible(line,:,:))';
                     posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0,p) + 1;
                     status{ori}{line}(3) = 1;
-                    if(p.verbose)
-                        fprintf("O%iL%03d %s - created by force.\n",ori,line,prty(status{ori}{line}(2)));
-                    end
+                    msg(p,ori,line,status{ori}{line}(2),'created by force');
                 end
             end
         end
