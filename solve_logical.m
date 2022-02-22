@@ -117,17 +117,18 @@ while ~finished
         % What happens if there is no change?
         if sum((colorPossible_old(:)-colorPossible(:)).^2)==0
             % Update the solution numbers
-            created_line = false;
-            arr = cell2mat(status{ori});
+            created_lines = 0;
+            arr = sortrows(cell2mat(status{ori}),2);
             lines = arr(arr(:,3)==0,1)';
-            for line=lines
+            for i=1:numel(lines)
+                line = lines(i);
                 blocks = M{ori}{line};
                 colors = C{ori}{line};
                 l = dim(3-ori);
                 colPos = squeeze(colorPossible(line,:,:))';
                 [~,count] = cr_sol_rec_with_info(blocks,colors,l,colPos,1,p);
                 if(count < threshold)
-                    created_line = true;
+                    created_lines = created_lines + 1;
                     posSol{ori}{line} = cr_sol_rec_with_info(blocks,colors,l,colPos,0,p)+1;
                     status{ori}{line} = [line count 1];
                     if(p.verbose)
@@ -136,9 +137,12 @@ while ~finished
                 else
                     status{ori}{line} = [line count 0];
                 end
+                if created_lines == 3
+                    break
+                end
             end
             % If no new line is created, choose some with smallest count
-            if ~created_line
+            if created_lines == 0
                 arr = sortrows(cell2mat(status{ori}),2);
                 lines = arr(arr(:,3)==0,1)';
                 for i=1:min(3,numel(lines))
