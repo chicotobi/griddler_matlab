@@ -164,6 +164,9 @@ while ~finished
 end
 
 if(p.verbose)
+    if(ori==2)
+        colorPossible = permute(colorPossible,[2,1,3]);
+    end
     plot_progress(colorPossible,status,cmap,iter,threshold,1,-1);
 end
 
